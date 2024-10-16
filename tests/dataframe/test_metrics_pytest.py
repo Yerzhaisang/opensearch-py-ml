@@ -81,9 +81,10 @@ class TestDataFrameMetrics(TestData):
         logger.setLevel(logging.DEBUG)
 
         for func in self.extended_funcs:
-            pd_metric = getattr(pd_flights, func)(
-                **({"numeric_only": True} if func != "mad" else {})
-            )
+            if func == "mad":
+                pd_metric = (pd_flights - pd_flights.mean()).abs().mean()
+            else:
+                pd_metric = getattr(pd_flights, func)(**({"numeric_only": True}))
             oml_metric = getattr(oml_flights, func)(numeric_only=True)
 
             pd_value = pd_metric["AvgTicketPrice"]
