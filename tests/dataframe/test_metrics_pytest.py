@@ -114,7 +114,10 @@ class TestDataFrameMetrics(TestData):
         oml_flights_0 = oml_flights[oml_flights.FlightNum == "XXX"][["AvgTicketPrice"]]
 
         for func in self.extended_funcs:
-            pd_metric = getattr(pd_flights_0, func)()
+            if func == "mad":
+                pd_metric = (pd_flights_0 - pd_flights_0.mean()).abs().mean()
+            else:
+                pd_metric = getattr(pd_flights_0, func)()
             oml_metric = getattr(oml_flights_0, func)(numeric_only=False)
 
             assert_series_equal(pd_metric, oml_metric, check_exact=False)
