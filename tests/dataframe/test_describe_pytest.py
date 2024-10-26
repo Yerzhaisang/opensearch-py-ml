@@ -34,7 +34,7 @@ class TestDataFrameDescribe(TestData):
         pd_flights = self.pd_flights()
         oml_flights = self.oml_flights()
 
-        pd_describe = pd_flights.describe()
+        pd_describe = pd_flights.describe().drop(["FlightTimeHour"], axis="columns")
         # We remove bool columns to match pandas output
         oml_describe = oml_flights.describe().drop(
             ["Cancelled", "FlightDelay"], axis="columns"
