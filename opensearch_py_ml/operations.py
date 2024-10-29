@@ -1221,7 +1221,7 @@ class Operations:
 
         df = pd.concat([df1, df2])
 
-        if isinstance(df, pd.Series):
+        if df.shape[1] == 1:
             return df.reindex(
                 ["count", "mean", "std", "min", "25%", "50%", "75%", "max"]
             )
