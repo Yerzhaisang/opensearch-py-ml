@@ -696,6 +696,9 @@ class QueryCompiler:
         return self._operations.idx(self, axis=axis, sort_order=sort_order)
 
     def value_counts(self, os_size: int) -> pd.Series:
+        serie = self._operations.value_counts(self, os_size)
+        print("Its query_compiler")
+        print(serie.name)
         return self._operations.value_counts(self, os_size)
 
     def os_info(self, buf: TextIO) -> None:

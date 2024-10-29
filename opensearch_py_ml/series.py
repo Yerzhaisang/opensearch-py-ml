@@ -322,6 +322,9 @@ class Series(NDFrame):
             raise TypeError("os_size must be a positive integer.")
         elif os_size <= 0:
             raise ValueError("os_size must be a positive integer.")
+        serie = self._query_compiler.value_counts(os_size)
+        print("Its series")
+        print(serie.name)
         return self._query_compiler.value_counts(os_size)
 
     # dtype not implemented for Series as causes query to fail

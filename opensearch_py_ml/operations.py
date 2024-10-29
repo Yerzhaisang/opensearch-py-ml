@@ -207,6 +207,9 @@ class Operations:
             return build_pd_series(results, index=results.keys(), dtype=dtype)
 
     def value_counts(self, query_compiler: "QueryCompiler", os_size: int) -> pd.Series:
+        serie = self._terms_aggs(query_compiler, "terms", os_size)
+        print("Its value_counts")
+        print(serie.name)
         return self._terms_aggs(query_compiler, "terms", os_size)
 
     def hist(
@@ -474,9 +477,9 @@ class Operations:
             name: Optional[str] = list(aggregatable_field_names.values())[0]
         except IndexError:
             name = None
-        print("name", name)
-        print("aggregatable_field_names", aggregatable_field_names)
-        print("results", results)
+        serie = build_pd_series(results, name=name)
+        print("Its terms_aggs")
+        print(serie.name)
         return build_pd_series(results, name=name)
 
     def _hist_aggs(
