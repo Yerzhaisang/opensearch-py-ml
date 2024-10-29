@@ -1205,7 +1205,7 @@ class Operations:
 
         df1 = self.aggs(
             query_compiler=query_compiler,
-            pd_aggs=["count", "mean", "std", "min", "max"],
+            pd_aggs=["count", "mean", "min", "max", "std"],
             numeric_only=True,
         )
         df2 = self.quantile(
