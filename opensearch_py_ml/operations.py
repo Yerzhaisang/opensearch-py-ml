@@ -1220,7 +1220,7 @@ class Operations:
         df2 = df2.set_index([["25%", "50%", "75%"]])
 
         return pd.concat([df1, df2]).reindex(
-            ["count", "mean", "std", "min", "25%", "50%", "75%", "max"]
+            ["count", "mean", "min", "25%", "50%", "75%", "max", "std"]
         )
 
     def to_pandas(
