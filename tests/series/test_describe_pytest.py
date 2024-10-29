@@ -23,6 +23,7 @@
 #  under the License.
 
 import pandas as pd
+from pandas.testing import assert_index_equal
 
 from tests.common import TestData, assert_series_equal
 
@@ -38,7 +39,7 @@ class TestSeriesDescribe(TestData):
         assert isinstance(oml_desc, pd.Series)
         assert oml_desc.shape == pd_desc.shape
         assert oml_desc.dtype == pd_desc.dtype
-        assert oml_desc.index == pd_desc.index
+        assert_index_equal(pd_desc.index, oml_desc.index)
         # assert oml_desc.index.equals(pd_desc.index)
 
         # Percentiles calculations vary for Elasticsearch
