@@ -1219,9 +1219,14 @@ class Operations:
         # Convert [.25,.5,.75] to ["25%", "50%", "75%"]
         df2 = df2.set_index([["25%", "50%", "75%"]])
 
-        return pd.concat([df1, df2]).reindex(
-            ["count", "mean", "min", "25%", "50%", "75%", "max", "std"]
-        )
+        df = pd.concat([df1, df2])
+
+        if isinstance(df, pd.Series):
+            return df.reindex(
+                ["count", "mean", "std", "min", "25%", "50%", "75%", "max"]
+            )
+
+        return df.reindex(["count", "mean", "min", "25%", "50%", "75%", "max", "std"])
 
     def to_pandas(
         self, query_compiler: "QueryCompiler", show_progress: bool = False
