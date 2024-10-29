@@ -474,7 +474,8 @@ class Operations:
             name: Optional[str] = list(aggregatable_field_names.values())[0]
         except IndexError:
             name = None
-
+        print("name", name)
+        print("aggregatable_field_names", aggregatable_field_names)
         return build_pd_series(results, name=name)
 
     def _hist_aggs(
