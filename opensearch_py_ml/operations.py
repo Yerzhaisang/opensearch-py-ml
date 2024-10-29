@@ -475,7 +475,7 @@ class Operations:
         except IndexError:
             name = None
 
-        return build_pd_series(results, name=name)
+        return build_pd_series(results, index_name=name, name="count")
 
     def _hist_aggs(
         self, query_compiler: "QueryCompiler", num_bins: int
