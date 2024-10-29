@@ -37,6 +37,8 @@ class TestSeriesValueCounts(TestData):
         pd_vc = pd_s.value_counts()
         oml_vc = oml_s.value_counts()
 
+        print("here its")
+        print(oml_vc.name)
         assert_series_equal(pd_vc, oml_vc)
 
     def test_value_counts_size(self):
