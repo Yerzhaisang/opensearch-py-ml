@@ -476,6 +476,7 @@ class Operations:
             name = None
         print("name", name)
         print("aggregatable_field_names", aggregatable_field_names)
+        print("results", results)
         return build_pd_series(results, name=name)
 
     def _hist_aggs(
