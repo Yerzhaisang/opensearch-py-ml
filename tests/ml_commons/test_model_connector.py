@@ -96,6 +96,8 @@ def test_create_standalone_connector_invalid_payload(
         ):
             client.create_standalone_connector(body=None, payload=invalid_payload)
 
+        for warning in w:
+            print(warning.message, warning.category)
         assert any(
             issubclass(warning.category, DeprecationWarning)
             and "payload is deprecated" in str(warning.message)
