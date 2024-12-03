@@ -96,6 +96,7 @@ def test_create_standalone_connector_invalid_payload(
         ):
             client.create_standalone_connector(body=None, payload=invalid_payload)
 
+        print("here is the print")
         for warning in w:
             print(warning.message, warning.category)
         assert any(
