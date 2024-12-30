@@ -1,0 +1,160 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Opensearch-py-ml: DataFrames and Machine Learning backed by Opensearch &mdash; Opensearch-py-ml 1.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=fc837d61"></script>
+      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API Reference" href="reference/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="#" class="icon icon-home">
+            Opensearch-py-ml
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="reference/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/pre_trained_models.html">Pre-trained models</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">Opensearch-py-ml</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Opensearch-py-ml: DataFrames and Machine Learning backed by Opensearch</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="opensearch-py-ml-dataframes-and-machine-learning-backed-by-opensearch">
+<span id="module-opensearch_py_ml"></span><h1>Opensearch-py-ml: DataFrames and Machine Learning backed by Opensearch<a class="headerlink" href="#opensearch-py-ml-dataframes-and-machine-learning-backed-by-opensearch" title="Link to this heading"></a></h1>
+<p><strong>Date</strong>: Dec 30, 2024 <strong>Version</strong>: 1.1.0</p>
+<p><strong>Useful links</strong>:
+<a class="reference external" href="https://github.com/opensearch-project/opensearch-py-ml">Source Repository</a> |
+<a class="reference external" href="https://github.com/opensearch-project/opensearch-py-ml/issues">Issues &amp; Ideas</a></p>
+<p>Opensearch-py-ml is a Python Opensearch client for exploring and analyzing data
+in Opensearch with a familiar Pandas-compatible API.</p>
+<p>Where possible the package uses existing Python APIs and data structures to make it easy to switch between numpy,
+pandas, scikit-learn to their Opensearch powered equivalents. In general, the data resides in Opensearch and
+not in memory, which allows Opensearch-py-ml to access large datasets stored in Opensearch.</p>
+<section id="installing-opensearch-py-ml">
+<h2>Installing Opensearch-py-ml<a class="headerlink" href="#installing-opensearch-py-ml" title="Link to this heading"></a></h2>
+<p>Opensearch-py-ml can be installed from <a class="reference external" href="https://pypi.org/project/opensearch-py-ml">PyPI</a> via pip:</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>opensearch-py-ml
+</pre></div>
+</div>
+</div></blockquote>
+</section>
+<section id="getting-started">
+<h2>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h2>
+<p>If it’s your first time using Opensearch we recommend looking through the
+<a class="reference internal" href="examples/index.html"><span class="doc">Examples</span></a> documentation for ideas on what Opensearch-py-ml is capable of.</p>
+<p>If you’re new to Opensearch we recommend <a class="reference external" href="https://opensearch.org/docs/latest/">reading the documentation</a>.</p>
+<div class="toctree-wrapper compound">
+</div>
+<ul class="simple">
+<li><p><a class="reference internal" href="reference/index.html"><span class="doc">API Reference</span></a></p>
+<ul>
+<li><p><a class="reference internal" href="reference/dataframe.html"><span class="doc">DataFrame</span></a></p></li>
+<li><p><a class="reference internal" href="reference/series.html"><span class="doc">Series</span></a></p></li>
+<li><p><a class="reference internal" href="reference/general_utility_functions.html"><span class="doc">General Utility Functions</span></a></p></li>
+<li><p><a class="reference internal" href="reference/io.html"><span class="doc">Input/Output</span></a></p></li>
+<li><p><a class="reference internal" href="reference/mlcommons.html"><span class="doc">MLCommons Support</span></a></p></li>
+<li><p><a class="reference internal" href="reference/sentencetransformer.html"><span class="doc">Sentence Transformer</span></a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="examples/index.html"><span class="doc">Examples</span></a></p>
+<ul>
+<li><p><a class="reference internal" href="examples/demo_notebook.html"><span class="doc">Demo Notebook for Dataframe</span></a></p></li>
+<li><p><a class="reference internal" href="examples/online_retail_analysis.html"><span class="doc">Demo Notebook for Online Retail Analysis</span></a></p></li>
+<li><p><a class="reference internal" href="examples/demo_transformer_model_train_save_upload_to_openSearch.html"><span class="doc">Demo Notebook for Sentence Transformer Model Training, Saving and Uploading to OpenSearch</span></a></p></li>
+</ul>
+</li>
+<li><p><a class="reference external" href="https://github.com/opensearch-project/opensearch-py-ml/blob/main/LICENSE">License</a></p></li>
+<li><p><a class="reference external" href="https://github.com/opensearch-project/opensearch-py-ml/blob/main/CONTRIBUTING.md">Contributing</a></p></li>
+<li><p><a class="reference external" href="https://github.com/opensearch-project/opensearch-py-ml/blob/main/CODE_OF_CONDUCT.md">Code of Conduct</a></p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="reference/index.html" class="btn btn-neutral float-right" title="API Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Opensearch.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

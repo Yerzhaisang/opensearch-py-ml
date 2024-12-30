@@ -1,0 +1,572 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "fba4c02d",
+   "metadata": {},
+   "source": [
+    "# Demo Notebook for Sentence Transformer Model Training, Saving and Uploading to OpenSearch\n",
+    "\n",
+    "#### [Download notebook](https://github.com/opensearch-project/opensearch-py-ml/blob/main/docs/source/examples/demo_transformer_model_train_save_upload_to_openSearch.ipynb)\n",
+    "\n",
+    "\n",
+    "## Introduction\n",
+    "\n",
+    "This notebook introduces the technique of synthetic data generation and how it can be used to obtain a deep learning model for Search that is custom built for a given set of documents. \n",
+    "\n",
+    "Deep learning models are very powerful and have been shown to improve state of the art in several disciplines and tasks. However, they need a lot of labelled training data. Such data is often hard to obtain.  In this notebook, we show how pre-trained large language models can be used to circumvent this issue. \n",
+    "\n",
+    "We focus on the task of passage retrieval i.e the corpus consists of passages which is searched at run-time given a user query. This search can be performed by transformers such as BERT as long as BERT is trained on a labelled dataset that consists of pairs such as (queries, relevant passage). Such a BERT model can be used for semantic search. \n",
+    "\n",
+    "\n",
+    "### Synthetic query generation\n",
+    "\n",
+    "In the absence of such labelled data we provide a synthetic query generator (SQG) model that can be used to create synthetic queries given a passage. The SQG model is a large transformer model that has been trained to generate human like queries given a passage. Thus it can be used to create a labelled dataset of (synthetic queries, passage). A BERT model can be trained on this synthetic data and used for semantic search. In fact, we find that such synthetically trained models beat the current state-of-the-art models. Note that resulting BERT model is a customized model since it has been trained on a specific corpus (and corresponding synthetic queries).\n",
+    "\n",
+    "\n",
+    "This notebook provides an end-to-end guide for users to generate synthetic queries and fine-tune a sentence transformer model on it using opensearch_py_ml. It consists of the following steps,\n",
+    "\n",
+    "Step 1: Import packages and set up client\n",
+    "\n",
+    "Step 2: Import the data/passages for synthetic query generation\n",
+    "\n",
+    "Step 3: Generate Synthetic Queries\n",
+    "\n",
+    "Step 4: Read synthetic queries and train/fine-tune model using a hugging face sentence transformer model\n",
+    "\n",
+    "Step 5: Upload the model to OpenSearch cluster\n",
+    "\n",
+    "Steps 3 and 4 are compute intensive step, and we recommend running it on a machine with 4 or more GPUS such as the EC2 `p3.8xlarge` or `p3.16xlarge`."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7011727e",
+   "metadata": {},
+   "source": [
+    "## Step 1: Import packages, set up client and define helper functions\n",
+    "\n",
+    "Install required packages for opensearch_py_ml.sentence_transformer_model\n",
+    "Install `opensearchpy` and `opensearch-py-ml` through pypi\n",
+    "\n",
+    "generate.py script is released with the Synthetic Query Generation model.\n",
+    "\n",
+    "Please refer https://pytorch.org/ to proper install torch based on your environment setting.\n",
+    "\n",
+    "Please install the following packages from the terminal if you haven't already. They can be also installed from the notebook by uncommenting the line and execute."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "e239ffc9",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "('generate.py', <http.client.HTTPMessage at 0x10bdbe940>)"
+      ]
+     },
+     "execution_count": 3,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# Download generate.py for Generate Synthetic Queries\n",
+    "\n",
+    "import urllib.request\n",
+    "urllib.request.urlretrieve(\"https://artifacts.opensearch.org/models/ml-models/amazon/gpt/GPT2_xl_sqg/1.0.0/generate.py\", \"generate.py\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "id": "17a3e085",
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [],
+   "source": [
+    "# !pip install pandas matplotlib numpy torch accelerate sentence_transformers tqdm transformers opensearch-py opensearch-py-ml detoxify datasets"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "87c021df",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import warnings\n",
+    "warnings.filterwarnings('ignore', category=DeprecationWarning)\n",
+    "warnings.filterwarnings(\"ignore\", message=\"Unverified HTTPS request\")\n",
+    "import opensearch_py_ml as oml\n",
+    "from opensearchpy import OpenSearch\n",
+    "import generate \n",
+    "from generate import Synthetic_Query_Generation\n",
+    "from opensearch_py_ml.ml_models import SentenceTransformerModel\n",
+    "import boto3, json\n",
+    "import pandas as pd, numpy as np\n",
+    "from datasets import load_dataset\n",
+    "import gc, torch\n",
+    "gc.collect()\n",
+    "torch.cuda.empty_cache()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "798cac25",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# import mlcommon to later upload the model to OpenSearch Cluster\n",
+    "from opensearch_py_ml.ml_commons import MLCommonClient"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "5c85ae17",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "CLUSTER_URL = 'https://localhost:9200'"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "77442abf",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def get_os_client(cluster_url = CLUSTER_URL,\n",
+    "                  username='admin',\n",
+    "                  password='< admin password >'):\n",
+    "    '''\n",
+    "    Get OpenSearch client\n",
+    "    :param cluster_url: cluster URL like https://ml-te-netwo-1s12ba42br23v-ff1736fa7db98ff2.elb.us-west-2.amazonaws.com:443\n",
+    "    :return: OpenSearch client\n",
+    "    '''\n",
+    "    client = OpenSearch(\n",
+    "        hosts=[cluster_url],\n",
+    "        http_auth=(username, password),\n",
+    "        verify_certs=False\n",
+    "    )\n",
+    "    return client "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "89e1cb2a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "client = get_os_client()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "id": "9bc33a2d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def myselect(x):    \n",
+    "    if max(x[\"passages\"][\"is_selected\"]) == 1:\n",
+    "        return x[\"passages\"][\"passage_text\"][np.argmax(x[\"passages\"][\"is_selected\"])]\n",
+    "    return \"-1\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "aa2294d0",
+   "metadata": {},
+   "source": [
+    "## Step 2: Import the data/passages for synthetic query generation"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b414dce7",
+   "metadata": {},
+   "source": [
+    "There are three supported options to read datasets :\n",
+    "\n",
+    "* Option 1: read from a local data folder in jsonl file \n",
+    "\n",
+    "* Option 2: read from a list of passages\n",
+    "\n",
+    "* Option 3: read from OpenSearch client by index_name"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5a58882e",
+   "metadata": {},
+   "source": [
+    "For the purpose of this notebook we will demonstrate option 2: read from a list of passages. \n",
+    "\n",
+    "We take the MS Marco dataset of passages as our example dataset. "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "49d19cd5",
+   "metadata": {},
+   "source": [
+    "### 2.1) Load the data and convert into a pandas dataframe"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "fe008eb4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "dataset = load_dataset(\"ms_marco\",\"v1.1\")\n",
+    "df = pd.DataFrame.from_dict(dataset[\"validation\"])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3b1927c9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df[\"passage\"] = df.apply(lambda x: myselect(x), axis = 1)\n",
+    "df = df[[\"query\",\"passage\"]][df.passage != \"-1\"]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "659063f7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Setting print options to display full columns\n",
+    "\n",
+    "pd.set_option('display.max_columns', None)\n",
+    "pd.set_option('display.expand_frame_repr', None)\n",
+    "pd.set_option('max_colwidth', None)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "68580786",
+   "metadata": {},
+   "source": [
+    "The dataset looks like,"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "02b03ca7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df[0:10]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d1ee32b5",
+   "metadata": {},
+   "source": [
+    "The MS Marco dataset has real queries for passages but we will pretend that it does not and generate synthetic queries for each passage"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "42e61085",
+   "metadata": {},
+   "source": [
+    "### 2.2) Convert the data into a list of strings and instantiate an object of the class Synthetic_Query_Generation"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1100cf65",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "sample_passages = list(df.passage.values)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c05e2e85",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ss = Synthetic_Query_Generation(sentences = sample_passages[:8]) "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "394b9e05",
+   "metadata": {},
+   "source": [
+    "## Step 3: Generate synthetic queries"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "76f3c2d6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "three_step_query = ss.generate_synthetic_queries(num_machines = 1,\n",
+    "                                                 tokenize_data = True,\n",
+    "                                                 tokenizer_max_length =  300, \n",
+    "                                                 total_queries = 10,\n",
+    "                                                 numseq = 5,\n",
+    "                                                 num_gpu = 0,\n",
+    "                                                 toxic_cutoff = 0.01, \n",
+    "                                                 tokens_to_word_ratio = 0.6)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f519d080",
+   "metadata": {},
+   "source": [
+    "A lot of actions are being executed in the above cell. We elaborate them step by step, \n",
+    "\n",
+    "    1) Convert the data into a form that can be consumed by the Synthetic query generator (SQG) model. This amounts to tokenizing the data using a tokenizer. The SQG model is a fine-tuned version of the GPT-XL model https://huggingface.co/gpt2-xl and the tokenizer is the GPT tokenizer.\n",
+    "\n",
+    "    2) The tokenizer has a max input length of 512 tokens. Every passage is tokenized with the special tokens <|startoftext|> and QRY: appended to the beginning and the end of every passage respectively. Note that tokenization is a time intensive process and the script saves the tokenized data after the first pass. We recommend setting tokenize_data = False subsequently.\n",
+    "\n",
+    "    3) Load the SQG model i.e. 1.5B parameter GPT2-XL model that has been trained to ask questions given passages. This model has been made publicly available and can be found here: https://artifacts.opensearch.org/models/ml-models/amazon/gpt/GPT2_xl_sqg/1.0.0/GPT2_xl_sqg.zip\n",
+    "\n",
+    "    4) Once the model has been loaded and the data has been tokenized, the model starts the process of query generation. \"total_queries\" is number of synthetic queries generated for every passage and \"numseq\" is the number of queries that are generated by a model at a given time. Ideally total_queries = numseq, but this can lead to out of memory issues. So set numseq to an integer that is around 10 or less, and is a divisor of total_queries.\n",
+    "\n",
+    "    5) tokens_to_word_ratio is a float variable that is used to switch between length of a document in tokens vs. in words. It is used when truncating documents during the tokenization phase. Most words are split in to one or more tokens. A document that has a length of 300 tokens might only be 200 words long. This ratio of 200/300 = 2/3 = 0.667 is the tokens_to_word_ratio. For passages from a dataset such as Wikipedia this ratio is around 0.65 to 0.7, but for domain specific datasets this ratio could be as small as 0.5.\n",
+    "    \n",
+    "    6) The script also requires to know the number of GPUs and the number of machines/nodes that it can use. Since we are using a single node instance with no GPUs we pass 0 and 1 to the function respectively. Our recommended setting is to use 1 machine/node with at least 4 (ideally 8) GPUs.\n",
+    "\n",
+    "    7) The script now begins to generate queries and displays a progress bar. We create total_queries per passage. Empirically we find that generating more queries leads to better performance but there are diminishing returns since the total inference time increases with total_queries.\n",
+    "\n",
+    "    8) After generating the queries, the function uses a publicly available package called Detoxify to remove inappropriate queries from the dataset. \"toxic_cutoff\" is a float. The script rejects all queries that have a toxicity score greater than toxic_cutoff\n",
+    "\n",
+    "    9) Finally, the synthetic queries along with their corresponding passages are saved in a zipped file in the current working directory.\n",
+    "\n",
+    "Note -- Please restart the kernel and rerun it if the notebook gives CUDA related errors. "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "43c09364",
+   "metadata": {},
+   "source": [
+    "### This is how the sample queries look like, "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d1a7c690",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# initiate SentenceTransformerModel object\n",
+    "\n",
+    "custom_model = SentenceTransformerModel(folder_path=\"/Volumes/workplace/upload_content/model_files/\", overwrite = True)\n",
+    "\n",
+    "\n",
+    "\n",
+    "df = custom_model.read_queries(read_path = '/Volumes/workplace/upload_content/clean_synthetic_queries.zip', overwrite = True)\n",
+    "\n",
+    "df[::10]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4da9e0de",
+   "metadata": {},
+   "source": [
+    "## Step 4: Read synthetic queries and train/fine-tune a hugging face sentence transformer model on synthetic data\n",
+    "\n",
+    "With a synthetic queries zip file, users can fine tune a sentence transformer model. \n",
+    "\n",
+    "The `SentenceTransformerModel` class will inititate an object for training, exporting and configuring the model. Plese visit the [SentenceTransformerModel](https://opensearch-project.github.io/opensearch-py-ml/reference/api/sentence_transformer.html#opensearch_py_ml.sentence_transformer_model.SentenceTransformerModel) for API Reference . \n",
+    "\n",
+    "The `train` function will import synthestic queries, load sentence transformer example and train the model using a hugging face sentence transformer model. Plese visit the [SentenceTransformerModel.train](https://opensearch-project.github.io/opensearch-py-ml/reference/api/sentence_transformer.html#opensearch_py_ml.sentence_transformer_model.SentenceTransformerModel.train) for API Reference . "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f1a337ac",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# clean up cache before training to free up spaces\n",
+    "import gc, torch\n",
+    "\n",
+    "gc.collect()\n",
+    "\n",
+    "torch.cuda.empty_cache()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4b37e9ac",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "\n",
+    "training = custom_model.train(read_path = '/Volumes/workplace/upload_content/clean_synthetic_queries.zip',\n",
+    "                        output_model_name = 'test2_model.pt',\n",
+    "                        zip_file_name= 'test2_model.zip',\n",
+    "                        overwrite = True,\n",
+    "                        num_epochs = 10,\n",
+    "                        verbose = False)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7af60a71",
+   "metadata": {},
+   "source": [
+    "Following are some important points about the training cell executed above,\n",
+    "\n",
+    "1. The input to the training script consists of (query, passage) pairs. The model is trained to maximize the dot product between relevant queries and passages while at the same time minimize the dot product between queries and irrelevant passages. This is also known as contrastive learning. We implement this using in-batch negatives and a symmetric loss as mentioned below. \n",
+    "\n",
+    "2. To utilize the power of GPUs we collect training samples into a batch before sending for model training. Each batch contains B number of randomly selected training samples (q, p). Thus within a batch each query has one relevant passage and B-1 irrelevant passages. Similarly for every passage there's one relevant query and B-1 irrelevant queries. For every given relevant query and passage pair we minimize the following expression, called the loss, \n",
+    "\n",
+    "3. For a given batch B, the loss is defined as loss = C(q, p) + C(p, q) where $C(q, p) = - \\sum_{i=1}^{i=B} \\log \\left( \\frac{exp(q_i \\cdot p_i)}{\\sum_{j=1} ^{B} exp(q_i \\cdot p_j)}\\right)$   \n",
+    "\n",
+    "4. The model truncates documents beyond 512 tokens. If the corpus contains documents that are shorter than 512 tokens the model max length can be adjusted to that number. Shorter sequences take less memory and therefore allow for bigger batch sizes. The max length can be adjusted by the \"percentile\" argument.  \n",
+    "\n",
+    "5. We use a batch size of 32 per device. Larger batch sizes lead to more in-batch negative samples and lead to better performance but unfortunately they also lead to out of memory issues. Shorter sequences use less memory, so if the document corpus is short feel free to experiment with larger batch sizes.\n",
+    "\n",
+    "6. The model is trained using the AdamW optimizer for 10 epochs with a learning rate of 2e-5 and a scheduler with linear schedule with warmup steps = 10,000"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c9bd0405",
+   "metadata": {},
+   "source": [
+    "## Step 5: Upload the model to OpenSearch cluster\n",
+    "After generated a model zip file, the users will need to describe model configuration in a ml-commons_model_config.json file. The `make_model_config_json` function in sentencetransformermodel class will parse the config file from hugging-face config.son file. If users would like to use a different config than the pre-trained sentence transformer, `make_model_config_json` function provide arguuments to change the configuration content and generated a ml-commons_model_config.json file. Plese visit the [SentenceTransformerModel.make_model_config_json](https://opensearch-project.github.io/opensearch-py-ml/reference/api/sentence_transformer.html#opensearch_py_ml.sentence_transformer_model.SentenceTransformerModel.make_model_config_json) for API Reference . \n",
+    "\n",
+    "In general, the ml common client supports uploading sentence transformer models. With a zip file contains model in  Torch Script format, and a configuration file for tokenizers in json format, the `upload_model` function connects to opensearch through ml client and upload the model. Plese visit the [MLCommonClient.upload_model](https://opensearch-project.github.io/opensearch-py-ml/reference/api/ml_commons_upload_api.html#opensearch_py_ml.ml_commons_integration.MLCommonClient.upload_model) for API Reference. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "dbe84425",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#users will need to prepare a ml-commons_model_config.json file to config the model, including model name ..\n",
+    "#this is a helpful function in py-ml.sentence_transformer_model to generate ml-commons_model_config.json file\n",
+    "custom_model.make_model_config_json()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "id": "ce9cc2b9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#connect to ml_common client with OpenSearch client\n",
+    "import opensearch_py_ml as oml\n",
+    "from opensearch_py_ml.ml_commons import MLCommonClient\n",
+    "ml_client = MLCommonClient(client)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "id": "c7b0ff7e",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Total number of chunks 10\n",
+      "Sha1 value of the model file:  61fd5a1425960681da49d084dca0e52fd0fabcc0f2e1c4d57c4e20e193bde483\n",
+      "Model meta data was created successfully. Model Id:  lGFG9IUBTo3f8n5R8nM6\n",
+      "uploading chunk 1 of 10\n",
+      "Model id: {'status': 'Uploaded'}\n",
+      "uploading chunk 2 of 10\n",
+      "Model id: {'status': 'Uploaded'}\n",
+      "uploading chunk 3 of 10\n",
+      "Model id: {'status': 'Uploaded'}\n",
+      "uploading chunk 4 of 10\n",
+      "Model id: {'status': 'Uploaded'}\n",
+      "uploading chunk 5 of 10\n",
+      "Model id: {'status': 'Uploaded'}\n",
+      "uploading chunk 6 of 10\n",
+      "Model id: {'status': 'Uploaded'}\n",
+      "uploading chunk 7 of 10\n",
+      "Model id: {'status': 'Uploaded'}\n",
+      "uploading chunk 8 of 10\n",
+      "Model id: {'status': 'Uploaded'}\n",
+      "uploading chunk 9 of 10\n",
+      "Model id: {'status': 'Uploaded'}\n",
+      "uploading chunk 10 of 10\n",
+      "Model id: {'status': 'Uploaded'}\n",
+      "Model uploaded successfully\n"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": [
+       "'lGFG9IUBTo3f8n5R8nM6'"
+      ]
+     },
+     "execution_count": 15,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# upload model to OpenSearch cluster, using model zip file path and ml-commons_model_config.json file generated above\n",
+    "\n",
+    "model_path = '/Volumes/workplace/upload_content/all-MiniLM-L6-v2.zip'\n",
+    "model_config_path = '/Volumes/workplace/upload_content/model_config.json'\n",
+    "ml_client.upload_model( model_path, model_config_path, isVerbose=True)"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.9.15"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

@@ -1,0 +1,590 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Demo Notebook to trace Sentence Transformers model &mdash; Opensearch-py-ml 1.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Demo Notebook for deploying CLIPTextModel to OpenSearch" href="demo_deploy_cliptextmodel.html" />
+    <link rel="prev" title="Demo Notebook for Sentence Transformer Model Training, Saving and Uploading to OpenSearch" href="demo_transformer_model_train_save_upload_to_openSearch.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Opensearch-py-ml
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">API Reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="index.html#demo-notebooks-for-data-exploration-panda-like-dataframe">Demo notebooks for Data Exploration Panda like DataFrame</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#demo-notebooks-for-model-training-and-tracing">Demo notebooks for Model Training and Tracing</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="demo_transformer_model_train_save_upload_to_openSearch.html">Demo Notebook for Sentence Transformer Model Training, Saving and Uploading to OpenSearch</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Demo Notebook to trace Sentence Transformers model</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Download-notebook">Download notebook</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="demo_deploy_cliptextmodel.html">Demo Notebook for deploying CLIPTextModel to OpenSearch</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#demo-notebooks-for-ml-commons-plugin-integration">Demo notebooks for ML Commons plugin integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#demo-notebooks-for-in-house-python-based-models">Demo Notebooks for In-house python based models</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/pre_trained_models.html">Pre-trained models</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Opensearch-py-ml</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Examples</a></li>
+      <li class="breadcrumb-item active">Demo Notebook to trace Sentence Transformers model</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/examples/demo_tracing_model_torchscript_onnx.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Demo-Notebook-to-trace-Sentence-Transformers-model">
+<h1>Demo Notebook to trace Sentence Transformers model<a class="headerlink" href="#Demo-Notebook-to-trace-Sentence-Transformers-model" title="Link to this heading"></a></h1>
+<section id="Download-notebook">
+<h2><a class="reference external" href="https://github.com/opensearch-project/opensearch-py-ml/blob/main/docs/source/examples/demo_tracing_model_torchscript_onnx.ipynb">Download notebook</a><a class="headerlink" href="#Download-notebook" title="Link to this heading"></a></h2>
+<p>This notebook provides a walkthrough guidance for users to trace models from Sentence Transformers in torchScript and onnx format. After tracing the model, customers can register the model to opensearch and generate embeddings.</p>
+<p>Remember, tracing model in torchScript or Onnx format at just two different options. We don’t need to trace model in both ways. Here in our notebook we just want to show both ways.</p>
+<p>Step 0: Import packages and set up client</p>
+<p>Step 1: Save model in torchScript format</p>
+<p>Step 2: Register the saved torchScript model in Opensearch</p>
+<p>[The following steps are optional, just showing registering model in both ways and comparing the both embedding output]</p>
+<p>Step 3: Save model in Onnx format</p>
+<p>Step 4: Register the saved Onnx model in Opensearch</p>
+<p>Step 5: Generate Sentence Embedding with registered models</p>
+<section id="Step-0:-Import-packages-and-set-up-client">
+<h3>Step 0: Import packages and set up client<a class="headerlink" href="#Step-0:-Import-packages-and-set-up-client" title="Link to this heading"></a></h3>
+<p>Install required packages for opensearch_py_ml.sentence_transformer_model Install <code class="docutils literal notranslate"><span class="pre">opensearchpy</span></code> and <code class="docutils literal notranslate"><span class="pre">opensearch-py-ml</span></code> through pypi</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="ch">#!pip install opensearch-py opensearch-py-ml</span>
+
+<span class="c1"># import os</span>
+<span class="c1"># import sys</span>
+<span class="c1"># sys.path.append(os.path.abspath(os.path.join(&#39;../../..&#39;)))</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">warnings</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">DeprecationWarning</span><span class="p">)</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">FutureWarning</span><span class="p">)</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Unverified HTTPS request&quot;</span><span class="p">)</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;TracerWarning: torch.tensor&quot;</span><span class="p">)</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;using SSL with verify_certs=False is insecure.&quot;</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">opensearch_py_ml</span> <span class="k">as</span> <span class="nn">oml</span>
+<span class="kn">from</span> <span class="nn">opensearchpy</span> <span class="kn">import</span> <span class="n">OpenSearch</span>
+<span class="kn">from</span> <span class="nn">opensearch_py_ml.ml_models</span> <span class="kn">import</span> <span class="n">SentenceTransformerModel</span>
+<span class="c1"># import mlcommon to later register the model to OpenSearch Cluster</span>
+<span class="kn">from</span> <span class="nn">opensearch_py_ml.ml_commons</span> <span class="kn">import</span> <span class="n">MLCommonClient</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/linuxbrew/.linuxbrew/opt/python@3.8/lib/python3.8/site-packages/tqdm/auto.py:21: TqdmWarning: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
+  from .autonotebook import tqdm as notebook_tqdm
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">CLUSTER_URL</span> <span class="o">=</span> <span class="s1">&#39;https://localhost:9200&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_os_client</span><span class="p">(</span><span class="n">cluster_url</span> <span class="o">=</span> <span class="n">CLUSTER_URL</span><span class="p">,</span>
+                  <span class="n">username</span><span class="o">=</span><span class="s1">&#39;admin&#39;</span><span class="p">,</span>
+                  <span class="n">password</span><span class="o">=</span><span class="s1">&#39;&lt; admin password &gt;&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Get OpenSearch client</span>
+<span class="sd">    :param cluster_url: cluster URL like https://ml-te-netwo-1s12ba42br23v-ff1736fa7db98ff2.elb.us-west-2.amazonaws.com:443</span>
+<span class="sd">    :return: OpenSearch client</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">client</span> <span class="o">=</span> <span class="n">OpenSearch</span><span class="p">(</span>
+        <span class="n">hosts</span><span class="o">=</span><span class="p">[</span><span class="n">cluster_url</span><span class="p">],</span>
+        <span class="n">http_auth</span><span class="o">=</span><span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">),</span>
+        <span class="n">verify_certs</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">client</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">client</span> <span class="o">=</span> <span class="n">get_os_client</span><span class="p">()</span>
+
+<span class="c1"># Connect to ml_common client with OpenSearch client</span>
+<span class="n">ml_client</span> <span class="o">=</span> <span class="n">MLCommonClient</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/linuxbrew/.linuxbrew/opt/python@3.8/lib/python3.8/site-packages/opensearchpy/connection/http_urllib3.py:199: UserWarning: Connecting to https://localhost:9200 using SSL with verify_certs=False is insecure.
+  warnings.warn(
+</pre></div></div>
+</div>
+</section>
+<section id="Step-1:-Save-model-in-torchScript-format">
+<h3>Step 1: Save model in torchScript format<a class="headerlink" href="#Step-1:-Save-model-in-torchScript-format" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">Opensearch-py-ml</span></code> plugin provides method <code class="docutils literal notranslate"><span class="pre">save_as_pt</span></code> which will trace a model in torchScript format and save the model in a zip file in your filesystem.</p>
+<p>Detailed documentation: <a class="reference external" href="https://opensearch-project.github.io/opensearch-py-ml/reference/api/sentence_transformer.save_as_pt.html#opensearch_py_ml.ml_models.SentenceTransformerModel.save_as_pt">https://opensearch-project.github.io/opensearch-py-ml/reference/api/sentence_transformer.save_as_pt.html#opensearch_py_ml.ml_models.SentenceTransformerModel.save_as_pt</a></p>
+<p>Users need to provide a model id from sentence transformers (an example: <code class="docutils literal notranslate"><span class="pre">sentence-transformers/msmarco-distilbert-base-tas-b</span></code>). This model id is a huggingface model id. Example: <a class="reference external" href="https://huggingface.co/sentence-transformers/msmarco-distilbert-base-tas-b">https://huggingface.co/sentence-transformers/msmarco-distilbert-base-tas-b</a></p>
+<p><code class="docutils literal notranslate"><span class="pre">save_as_pt</span></code> will download the model in filesystem and then trace the model with the given input strings.</p>
+<p>To get more direction about dummy input string please check this url: <a class="reference external" href="https://huggingface.co/docs/transformers/torchscript#dummy-inputs-and-standard-lengths">https://huggingface.co/docs/transformers/torchscript#dummy-inputs-and-standard-lengths</a></p>
+<p>after tracing the model (a .pt file will be generated), <code class="docutils literal notranslate"><span class="pre">save_as_pt</span></code> method zips <code class="docutils literal notranslate"><span class="pre">tokenizers.json</span></code> and torchScript (<code class="docutils literal notranslate"><span class="pre">.pt</span></code>) file and saves in the file system.</p>
+<p>User can register that model to opensearch to generate embedding.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_id</span> <span class="o">=</span> <span class="s2">&quot;sentence-transformers/msmarco-distilbert-base-tas-b&quot;</span>
+<span class="n">folder_path</span> <span class="o">=</span> <span class="s2">&quot;sentence-transformer-torchscript/msmarco-distilbert-base-tas-b&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pre_trained_model</span> <span class="o">=</span> <span class="n">SentenceTransformerModel</span><span class="p">(</span><span class="n">model_id</span><span class="o">=</span><span class="n">model_id</span><span class="p">,</span> <span class="n">folder_path</span><span class="o">=</span><span class="n">folder_path</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">model_path</span> <span class="o">=</span> <span class="n">pre_trained_model</span><span class="o">.</span><span class="n">save_as_pt</span><span class="p">(</span><span class="n">model_id</span><span class="o">=</span><span class="n">model_id</span><span class="p">,</span> <span class="n">sentences</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;for example providing a small sentence&quot;</span><span class="p">,</span> <span class="s2">&quot;we can add multiple sentences&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/linuxbrew/.linuxbrew/opt/python@3.8/lib/python3.8/site-packages/transformers/models/distilbert/modeling_distilbert.py:223: TracerWarning: torch.tensor results are registered as constants in the trace. You can safely ignore this warning if you use this function to create tensors out of constant variables that would be the same every time you call this function. In any other case, this might cause the trace to be incorrect.
+  mask, torch.tensor(torch.finfo(scores.dtype).min)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+model file is saved to  sentence-transformer-torchscript/msmarco-distilbert-base-tas-b/msmarco-distilbert-base-tas-b.pt
+zip file is saved to  sentence-transformer-torchscript/msmarco-distilbert-base-tas-b/msmarco-distilbert-base-tas-b.zip
+
+</pre></div></div>
+</div>
+</section>
+<section id="Step-2:-Register-the-saved-torchScript-model-in-Opensearch">
+<h3>Step 2: Register the saved torchScript model in Opensearch<a class="headerlink" href="#Step-2:-Register-the-saved-torchScript-model-in-Opensearch" title="Link to this heading"></a></h3>
+<p>In the last step we saved a sentence transformer model in torchScript format. Now we will register that model in opensearch cluster. To do that we can take help of <code class="docutils literal notranslate"><span class="pre">register_model</span></code> method in <code class="docutils literal notranslate"><span class="pre">opensearch-py-ml</span></code> plugin.</p>
+<p>To register model, we need the zip file we just saved in the last step and a model config file. You can use <code class="docutils literal notranslate"><span class="pre">make_model_config_json</span></code> method to automatically generate the model config file and save it at <code class="docutils literal notranslate"><span class="pre">ml-commons_model_config.json</span></code> in model folder, or you can create a json file by yourself.</p>
+<p>Example of Model config file content can be:</p>
+<p>{ “name”: “sentence-transformers/msmarco-distilbert-base-tas-b”, “version”: “1.0.0”, “description”: “This is a port of the DistilBert TAS-B Model to sentence-transformers model: It maps sentences &amp; paragraphs to a 768 dimensional dense vector space and is optimized for the task of semantic search.”, “model_format”: “TORCH_SCRIPT”, “model_config”: { “model_type”: “distilbert”, “embedding_dimension”: 768, “framework_type”: “sentence_transformers” } }</p>
+<p>In either approach, you have to set <code class="docutils literal notranslate"><span class="pre">model_format</span></code> to be <code class="docutils literal notranslate"><span class="pre">TORCH_SCRIPT</span></code> so that internal system will look for the corresponding <code class="docutils literal notranslate"><span class="pre">.pt</span></code> file from the zip folder.</p>
+<p>Please refer to this doc: <a class="reference external" href="https://github.com/opensearch-project/ml-commons/blob/2.x/docs/model_serving_framework/text_embedding_model_examples.md">https://github.com/opensearch-project/ml-commons/blob/2.x/docs/model_serving_framework/text_embedding_model_examples.md</a></p>
+<p>Documentation for the method: <a class="reference external" href="https://opensearch-project.github.io/opensearch-py-ml/reference/api/ml_commons_register_api.html#opensearch_py_ml.ml_commons.MLCommonClient.register_model">https://opensearch-project.github.io/opensearch-py-ml/reference/api/ml_commons_register_api.html#opensearch_py_ml.ml_commons.MLCommonClient.register_model</a></p>
+<p>Related demo notebook about ml-commons plugin integration: <a class="reference external" href="https://opensearch-project.github.io/opensearch-py-ml/examples/demo_ml_commons_integration.html">https://opensearch-project.github.io/opensearch-py-ml/examples/demo_ml_commons_integration.html</a></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_config_path_torch</span> <span class="o">=</span> <span class="n">pre_trained_model</span><span class="o">.</span><span class="n">make_model_config_json</span><span class="p">(</span><span class="n">model_format</span><span class="o">=</span><span class="s1">&#39;TORCH_SCRIPT&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+ml-commons_model_config.json file is saved at :  sentence-transformer-torchscript/msmarco-distilbert-base-tas-b/ml-commons_model_config.json
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ml_client</span><span class="o">.</span><span class="n">register_model</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">model_config_path_torch</span><span class="p">,</span> <span class="n">isVerbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Total number of chunks 27
+Sha1 value of the model file:  b397ae99ef3c27ba2ea080428ba695ba732da90a9367e77383b55ec0b191903e
+Model meta data was created successfully. Model Id:  4djw4okB2Ly7dmqcT7Xp
+uploading chunk 1 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 2 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 3 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 4 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 5 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 6 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 7 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 8 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 9 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 10 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 11 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 12 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 13 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 14 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 15 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 16 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 17 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 18 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 19 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 20 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 21 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 22 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 23 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 24 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 25 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 26 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 27 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+Model registered successfully
+Task ID: 4tjw4okB2Ly7dmqcerVn
+Model deployed successfully
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&#39;4djw4okB2Ly7dmqcT7Xp&#39;
+</pre></div></div>
+</div>
+</section>
+<section id="Step-3:-Save-model-in-Onnx-format">
+<h3>Step 3: Save model in Onnx format<a class="headerlink" href="#Step-3:-Save-model-in-Onnx-format" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">Opensearch-py-ml</span></code> plugin provides method <code class="docutils literal notranslate"><span class="pre">save_as_onnx</span></code> which will trace a model in ONNX format and save the model in a zip file in your filesystem.</p>
+<p>Detailed documentation: <a class="reference external" href="https://opensearch-project.github.io/opensearch-py-ml/reference/api/sentence_transformer.save_as_onnx.html#opensearch_py_ml.ml_models.SentenceTransformerModel.save_as_onnx">https://opensearch-project.github.io/opensearch-py-ml/reference/api/sentence_transformer.save_as_onnx.html#opensearch_py_ml.ml_models.SentenceTransformerModel.save_as_onnx</a></p>
+<p>Users need to provide a model id from sentence transformers (an example: <code class="docutils literal notranslate"><span class="pre">sentence-transformers/msmarco-distilbert-base-tas-b</span></code>). <code class="docutils literal notranslate"><span class="pre">save_as_onnx</span></code> will download the model in filesystem and then trace the model.</p>
+<p>after tracing the model (a .onnx file will be generated), <code class="docutils literal notranslate"><span class="pre">save_as_onnx</span></code> method zips <code class="docutils literal notranslate"><span class="pre">tokenizers.json</span></code> and torchScript (<code class="docutils literal notranslate"><span class="pre">.onnx</span></code>) file and saves in the file system.</p>
+<p>User can register that model to opensearch to generate embedding.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_id</span> <span class="o">=</span> <span class="s2">&quot;sentence-transformers/msmarco-distilbert-base-tas-b&quot;</span>
+<span class="n">folder_path</span> <span class="o">=</span> <span class="s2">&quot;sentence-transformer-onnx/msmarco-distilbert-base-tas-b&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pre_trained_model</span> <span class="o">=</span> <span class="n">SentenceTransformerModel</span><span class="p">(</span><span class="n">model_id</span><span class="o">=</span><span class="n">model_id</span><span class="p">,</span> <span class="n">folder_path</span><span class="o">=</span><span class="n">folder_path</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">model_path_onnx</span> <span class="o">=</span> <span class="n">pre_trained_model</span><span class="o">.</span><span class="n">save_as_onnx</span><span class="p">(</span><span class="n">model_id</span><span class="o">=</span><span class="n">model_id</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+ONNX opset version set to: 15
+Loading pipeline (model: sentence-transformers/msmarco-distilbert-base-tas-b, tokenizer: sentence-transformers/msmarco-distilbert-base-tas-b)
+Creating folder sentence-transformer-onnx/msmarco-distilbert-base-tas-b/onnx
+Using framework PyTorch: 1.13.1+cu117
+Found input input_ids with shape: {0: &#39;batch&#39;, 1: &#39;sequence&#39;}
+Found input attention_mask with shape: {0: &#39;batch&#39;, 1: &#39;sequence&#39;}
+Found output output_0 with shape: {0: &#39;batch&#39;, 1: &#39;sequence&#39;}
+Ensuring inputs are in correct order
+head_mask is not present in the generated input list.
+Generated inputs order: [&#39;input_ids&#39;, &#39;attention_mask&#39;]
+zip file is saved to  sentence-transformer-onnx/msmarco-distilbert-base-tas-b/msmarco-distilbert-base-tas-b.zip
+
+</pre></div></div>
+</div>
+</section>
+<section id="Step-4:-Register-the-saved-Onnx-model-in-Opensearch">
+<h3>Step 4: Register the saved Onnx model in Opensearch<a class="headerlink" href="#Step-4:-Register-the-saved-Onnx-model-in-Opensearch" title="Link to this heading"></a></h3>
+<p>In the last step we saved a sentence transformer model in ONNX format. Now we will register that model in opensearch cluster. To do that we can take help of <code class="docutils literal notranslate"><span class="pre">register_model</span></code> method in <code class="docutils literal notranslate"><span class="pre">opensearch-py-ml</span></code> plugin.</p>
+<p>To register model, we need the zip file we just saved in the last step and a model config file. You can use <code class="docutils literal notranslate"><span class="pre">make_model_config_json</span></code> method to automatically generate the model config file and save it at <code class="docutils literal notranslate"><span class="pre">ml-commons_model_config.json</span></code> in model folder, or you can create a json file by yourself.</p>
+<p>{ “name”: “sentence-transformers/msmarco-distilbert-base-tas-b”, “version”: “1.0.0”, “description”: “This is a port of the DistilBert TAS-B Model to sentence-transformers model: It maps sentences &amp; paragraphs to a 768 dimensional dense vector space and is optimized for the task of semantic search.”, “model_format”: “ONNX”, “model_config”: { “model_type”: “distilbert”, “embedding_dimension”: 768, “framework_type”: “sentence_transformers”, “pooling_mode”:”cls”, “normalize_result”:”false” } }</p>
+<p>In either approach, you have to set <code class="docutils literal notranslate"><span class="pre">model_format</span></code> to be <code class="docutils literal notranslate"><span class="pre">ONNX</span></code> so that internal system will look for the corresponding <code class="docutils literal notranslate"><span class="pre">.onnx</span></code> file from the zip folder.</p>
+<p>Please refer to this doc: <a class="reference external" href="https://github.com/opensearch-project/ml-commons/blob/2.x/docs/model_serving_framework/text_embedding_model_examples.md">https://github.com/opensearch-project/ml-commons/blob/2.x/docs/model_serving_framework/text_embedding_model_examples.md</a></p>
+<p>Documentation for the method: <a class="reference external" href="https://opensearch-project.github.io/opensearch-py-ml/reference/api/ml_commons_register_api.html#opensearch_py_ml.ml_commons.MLCommonClient.register_model">https://opensearch-project.github.io/opensearch-py-ml/reference/api/ml_commons_register_api.html#opensearch_py_ml.ml_commons.MLCommonClient.register_model</a></p>
+<p>Related demo notebook about ml-commons plugin integration: <a class="reference external" href="https://opensearch-project.github.io/opensearch-py-ml/examples/demo_ml_commons_integration.html">https://opensearch-project.github.io/opensearch-py-ml/examples/demo_ml_commons_integration.html</a></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_config_path_onnx</span> <span class="o">=</span> <span class="n">pre_trained_model</span><span class="o">.</span><span class="n">make_model_config_json</span><span class="p">(</span><span class="n">model_format</span><span class="o">=</span><span class="s1">&#39;ONNX&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+ml-commons_model_config.json file is saved at :  sentence-transformer-onnx/msmarco-distilbert-base-tas-b/ml-commons_model_config.json
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ml_client</span><span class="o">.</span><span class="n">register_model</span><span class="p">(</span><span class="n">model_path_onnx</span><span class="p">,</span> <span class="n">model_config_path_onnx</span><span class="p">,</span> <span class="n">isVerbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Total number of chunks 27
+Sha1 value of the model file:  81c950d07eaa21705dd94cec0f127efec42844cd1995502452764777460517d4
+Model meta data was created successfully. Model Id:  49jz4okB2Ly7dmqcNrWD
+uploading chunk 1 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 2 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 3 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 4 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 5 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 6 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 7 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 8 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 9 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 10 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 11 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 12 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 13 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 14 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 15 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 16 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 17 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 18 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 19 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 20 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 21 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 22 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 23 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 24 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 25 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 26 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+uploading chunk 27 of 27
+Model id: {&#39;status&#39;: &#39;Uploaded&#39;}
+Model registered successfully
+Task ID: 5Njz4okB2Ly7dmqcW7XA
+Model deployed successfully
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&#39;49jz4okB2Ly7dmqcNrWD&#39;
+</pre></div></div>
+</div>
+</section>
+<section id="Step-5:-Generate-Sentence-Embedding">
+<h3>Step 5: Generate Sentence Embedding<a class="headerlink" href="#Step-5:-Generate-Sentence-Embedding" title="Link to this heading"></a></h3>
+<p>Now after loading these models in memory, we can generate embedding for sentences. We can provide a list of sentences to get a list of embedding for the sentences.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Now using this model we can generate sentence embedding.</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">input_sentences</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;first sentence&quot;</span><span class="p">,</span> <span class="s2">&quot;second sentence&quot;</span><span class="p">]</span>
+
+<span class="c1"># Generated embedding from torchScript</span>
+
+<span class="n">embedding_output_torch</span> <span class="o">=</span> <span class="n">ml_client</span><span class="o">.</span><span class="n">generate_embedding</span><span class="p">(</span><span class="s2">&quot;4djw4okB2Ly7dmqcT7Xp&quot;</span><span class="p">,</span> <span class="n">input_sentences</span><span class="p">)</span>
+
+<span class="c1">#just taking embedding for the first sentence</span>
+<span class="n">data_torch</span> <span class="o">=</span> <span class="n">embedding_output_torch</span><span class="p">[</span><span class="s2">&quot;inference_results&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;data&quot;</span><span class="p">]</span>
+
+<span class="c1"># Generated embedding from onnx</span>
+
+<span class="n">embedding_output_onnx</span> <span class="o">=</span> <span class="n">ml_client</span><span class="o">.</span><span class="n">generate_embedding</span><span class="p">(</span><span class="s2">&quot;49jz4okB2Ly7dmqcNrWD&quot;</span><span class="p">,</span> <span class="n">input_sentences</span><span class="p">)</span>
+
+<span class="c1"># Just taking embedding for the first sentence</span>
+<span class="n">data_onnx</span> <span class="o">=</span> <span class="n">embedding_output_onnx</span><span class="p">[</span><span class="s2">&quot;inference_results&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;data&quot;</span><span class="p">]</span>
+
+<span class="c1"># Now we can check if there&#39;s any significant difference between two outputs</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_allclose</span><span class="p">(</span><span class="n">data_torch</span><span class="p">,</span> <span class="n">data_onnx</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-03</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-05</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+None
+</pre></div></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="demo_transformer_model_train_save_upload_to_openSearch.html" class="btn btn-neutral float-left" title="Demo Notebook for Sentence Transformer Model Training, Saving and Uploading to OpenSearch" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="demo_deploy_cliptextmodel.html" class="btn btn-neutral float-right" title="Demo Notebook for deploying CLIPTextModel to OpenSearch" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Opensearch.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

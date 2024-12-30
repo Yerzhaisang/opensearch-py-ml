@@ -1,0 +1,509 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "fba4c02d",
+   "metadata": {},
+   "source": [
+    "# Demo Notebook for MLCommons Integration\n",
+    "\n",
+    "#### [Download notebook](https://github.com/opensearch-project/opensearch-py-ml/blob/main/docs/source/examples/demo_ml_commons_integration.ipynb)\n",
+    "\n",
+    "\n",
+    "This notebook provides a walkthrough guidance for users to invoke MLCommons apis to upload ml models to opensearch cluster\n",
+    "\n",
+    "Step 0: Import packages and set up client\n",
+    "\n",
+    "Step 1: Upload NLP model from local file to Opensearch cluster\n",
+    "\n",
+    "Step 2: Load Model\n",
+    "\n",
+    "Step 3: Get Task\n",
+    "\n",
+    "Step 4: Get Model\n",
+    "\n",
+    "Step 5: Generate Sentence Embedding\n",
+    "\n",
+    "Step 6: Unload Model\n",
+    "\n",
+    "Step 7: Delete Model\n",
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e9693720",
+   "metadata": {},
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7011727e",
+   "metadata": {},
+   "source": [
+    "## Step 0: Import packages and set up client\n",
+    "Install required packages for opensearch_py_ml.sentence_transformer_model\n",
+    "Install `opensearchpy` and `opensearch-py-ml` through pypi\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "17a3e085",
+   "metadata": {
+    "pycharm": {
+     "is_executing": true
+    },
+    "scrolled": true
+   },
+   "outputs": [],
+   "source": [
+    "!pip install opensearch-py opensearch-py-ml"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "f12096cd",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "\u001b[33mDEPRECATION: Configuring installation scheme with distutils config files is deprecated and will no longer work in the near future. If you are using a Homebrew or Linuxbrew Python, please see discussion at https://github.com/Homebrew/homebrew-core/issues/76621\u001b[0m\u001b[33m\n",
+      "\u001b[0mRequirement already satisfied: deprecated in /home/linuxbrew/.linuxbrew/lib/python3.9/site-packages (1.2.14)\n",
+      "Requirement already satisfied: wrapt<2,>=1.10 in /home/linuxbrew/.linuxbrew/lib/python3.9/site-packages (from deprecated) (1.15.0)\n",
+      "\u001b[33mDEPRECATION: Configuring installation scheme with distutils config files is deprecated and will no longer work in the near future. If you are using a Homebrew or Linuxbrew Python, please see discussion at https://github.com/Homebrew/homebrew-core/issues/76621\u001b[0m\u001b[33m\n",
+      "\u001b[0m\n",
+      "\u001b[1m[\u001b[0m\u001b[34;49mnotice\u001b[0m\u001b[1;39;49m]\u001b[0m\u001b[39;49m A new release of pip is available: \u001b[0m\u001b[31;49m23.1.2\u001b[0m\u001b[39;49m -> \u001b[0m\u001b[32;49m23.2.1\u001b[0m\n",
+      "\u001b[1m[\u001b[0m\u001b[34;49mnotice\u001b[0m\u001b[1;39;49m]\u001b[0m\u001b[39;49m To update, run: \u001b[0m\u001b[32;49mpython3.9 -m pip install --upgrade pip\u001b[0m\n"
+     ]
+    }
+   ],
+   "source": [
+    "!pip install deprecated"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "39146873",
+   "metadata": {
+    "pycharm": {
+     "is_executing": true
+    }
+   },
+   "outputs": [],
+   "source": [
+    "import warnings\n",
+    "warnings.filterwarnings('ignore', category=DeprecationWarning)\n",
+    "warnings.filterwarnings(\"ignore\", message=\"Unverified HTTPS request\")\n",
+    "from opensearchpy import OpenSearch"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "5c85ae17",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "CLUSTER_URL = 'https://localhost:9200'"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "77442abf",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def get_os_client(cluster_url = CLUSTER_URL,\n",
+    "                  username='admin',\n",
+    "                  password='< admin password >'):\n",
+    "    '''\n",
+    "    Get OpenSearch client\n",
+    "    :param cluster_url: cluster URL like https://ml-te-netwo-1s12ba42br23v-ff1736fa7db98ff2.elb.us-west-2.amazonaws.com:443\n",
+    "    :return: OpenSearch client\n",
+    "    '''\n",
+    "    client = OpenSearch(\n",
+    "        hosts=[cluster_url],\n",
+    "        http_auth=(username, password),\n",
+    "        verify_certs=False\n",
+    "    )\n",
+    "    return client "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "89e1cb2a",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "/home/linuxbrew/.linuxbrew/opt/python@3.8/lib/python3.8/site-packages/opensearchpy/connection/http_urllib3.py:199: UserWarning: Connecting to https://localhost:9200 using SSL with verify_certs=False is insecure.\n",
+      "  warnings.warn(\n"
+     ]
+    }
+   ],
+   "source": [
+    "client = get_os_client()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4da9e0de",
+   "metadata": {},
+   "source": [
+    "## Step 1: Upload NLP model from local file to Opensearch cluster\n",
+    "\n",
+    "We can upload machine learning models to Opensearch cluster using MLCommons register_model api. In this demo we will show how can we upload model\n",
+    "\n",
+    "\n",
+    "###### From Opensearch 2.8, to register a model we need to have a model group. First we need to register a model group and use the model group id to register a model. For registering a model group we can look at this doc: \n",
+    "\n",
+    "https://github.com/opensearch-project/ml-commons/blob/2.x/docs/model_access_control.md#registering-a-model-group\n",
+    "\n",
+    "In our following example, we created a group and using the group id to register a model.\n",
+    "\n",
+    "`model_id = ml_client.register_pretrained_model(model_name = \"huggingface/sentence-transformers/all-MiniLM-L12-v2\", model_version = \"1.0.1\", model_format = \"TORCH_SCRIPT\", model_group_id = \"d4hfsYgBFp6IJxCcqpwi\", deploy_model=False, wait_until_deployed=False)`\n",
+    "\n",
+    "###### From Opensearch 2.6, we introduced pre-trained models: https://opensearch.org/docs/latest/ml-commons-plugin/pretrained-models/\n",
+    "\n",
+    "\n",
+    "* One thing to remember, if we don't have any ml node then registering model might throw exception. In that case we need to update this setting: https://github.com/opensearch-project/ml-commons/blob/main/build.gradle#L46\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "168a969e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from opensearch_py_ml.ml_commons import MLCommonClient\n",
+    "ml_client = MLCommonClient(client)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "3bfe1532",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Model was registered successfully. Model Id:  t0jp24kBHUgZTTdfDMmm\n",
+      "t0jp24kBHUgZTTdfDMmm\n"
+     ]
+    }
+   ],
+   "source": [
+    "model_id = ml_client.register_pretrained_model(model_name = \"huggingface/sentence-transformers/all-MiniLM-L12-v2\", model_version = \"1.0.1\", model_format = \"TORCH_SCRIPT\", deploy_model=False, wait_until_deployed=False)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "65de517d",
+   "metadata": {},
+   "source": [
+    "We can also upload model from our own file system or URL. But to do that we need to update couple cluster settings:\n",
+    "\n",
+    "To register from url: plugins.ml_commons.allow_registering_model_via_url\n",
+    "To register from file system: plugins.ml_commons.allow_registering_model_via_local_file\n",
+    "\n",
+    "    By default, both of these values are `False`, we need to update to `True`\n",
+    "\n",
+    "\n",
+    "To demonstrate, we download the model zip file from the url: https://github.com/opensearch-project/ml-commons/raw/2.x/ml-algorithms/src/test/resources/org/opensearch/ml/engine/algorithms/text_embedding/all-MiniLM-L6-v2_torchscript_sentence-transformer.zip?raw=true\n",
+    "\n",
+    "To upload model to the cluster, we need a zip file containing a torchScript file (.pt extension) and a tokenizer.json file. Please refer to the previous download. We also need a json file with defining the config information with following these request fields: \n",
+    "\n",
+    "https://opensearch.org/docs/latest/ml-commons-plugin/api/#request-fields"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "c7b0ff7e",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Total number of chunks 10\n",
+      "Sha1 value of the model file:  3ead6e8725322ff54ef9137c453132046098d7e6494945283b8fc980c9123675\n",
+      "Model meta data was created successfully. Model Id:  4oh9sYgBFp6IJxCclpx2\n",
+      "uploading chunk 1 of 10\n",
+      "Model id: {'status': 'Uploaded'}\n",
+      "uploading chunk 2 of 10\n",
+      "Model id: {'status': 'Uploaded'}\n",
+      "uploading chunk 3 of 10\n",
+      "Model id: {'status': 'Uploaded'}\n",
+      "uploading chunk 4 of 10\n",
+      "Model id: {'status': 'Uploaded'}\n",
+      "uploading chunk 5 of 10\n",
+      "Model id: {'status': 'Uploaded'}\n",
+      "uploading chunk 6 of 10\n",
+      "Model id: {'status': 'Uploaded'}\n",
+      "uploading chunk 7 of 10\n",
+      "Model id: {'status': 'Uploaded'}\n",
+      "uploading chunk 8 of 10\n",
+      "Model id: {'status': 'Uploaded'}\n",
+      "uploading chunk 9 of 10\n",
+      "Model id: {'status': 'Uploaded'}\n",
+      "uploading chunk 10 of 10\n",
+      "Model id: {'status': 'Uploaded'}\n",
+      "Model registered successfully\n",
+      "Model deployed successfully\n"
+     ]
+    }
+   ],
+   "source": [
+    "\n",
+    "model_path = '/Volumes/workplace/upload_content/sentence-transformers_all-MiniLM-L6-v2-1.0.0-torch_script.zip'\n",
+    "model_config_path = '/Volumes/workplace/upload_content/all-MiniLM-L6-v2_torchscript.json'\n",
+    "\n",
+    "\"\"\"\n",
+    "all-MiniLM-L6-v2_torchscript.json content:\n",
+    "\n",
+    "{\n",
+    "    \"name\": \"all-MiniLM-L6-v2\",\n",
+    "    \"version\": 1,\n",
+    "    \"model_format\": \"TORCH_SCRIPT\",\n",
+    "    \"model_config\": {\n",
+    "        \"model_type\": \"bert\",\n",
+    "        \"embedding_dimension\": 384,\n",
+    "        \"framework_type\": \"sentence_transformers\"\n",
+    "    }\n",
+    "}\n",
+    "\"\"\"\n",
+    "\n",
+    "\n",
+    "# model_id_file_system = ml_client.register_model(model_path, model_config_path, model_group_id = \"d4hfsYgBFp6IJxCcqpwi\", isVerbose=True\n",
+    "model_id_file_system = ml_client.register_model(model_path, model_config_path, isVerbose=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9c3b7cbd",
+   "metadata": {},
+   "source": [
+    "## Step 2: Load Model\n",
+    "\n",
+    "In the last step we upload a model and the model id is: `t0jp24kBHUgZTTdfDMmm`. Now we will load this model in opensearch memory."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "id": "28e9310c",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Task ID: uEjr24kBHUgZTTdfNskV\n",
+      "Model deployed successfully\n",
+      "{'model_id': 't0jp24kBHUgZTTdfDMmm', 'task_type': 'DEPLOY_MODEL', 'function_name': 'TEXT_EMBEDDING', 'state': 'COMPLETED', 'worker_node': ['3w2aOHUBRmmwmVfoGgW8Jw'], 'create_time': 1691611772437, 'last_update_time': 1691611774664, 'is_async': True}\n"
+     ]
+    }
+   ],
+   "source": [
+    "load_model_output = ml_client.deploy_model(\"t0jp24kBHUgZTTdfDMmm\")\n",
+    "\n",
+    "print(load_model_output)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "34ee235b",
+   "metadata": {},
+   "source": [
+    "## Step 3: Get Task\n",
+    "\n",
+    "When we invoke load model api of mlcommons plugin, a task get created. We can see the task id (`uEjr24kBHUgZTTdfNskV`) from previous output. Now, we can get the detailed information of the task using this task id"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "id": "44d6b1d2",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "{'model_id': 't0jp24kBHUgZTTdfDMmm', 'task_type': 'DEPLOY_MODEL', 'function_name': 'TEXT_EMBEDDING', 'state': 'COMPLETED', 'worker_node': ['3w2aOHUBRmmwmVfoGgW8Jw'], 'create_time': 1691611772437, 'last_update_time': 1691611774664, 'is_async': True}\n"
+     ]
+    }
+   ],
+   "source": [
+    "task_info = ml_client.get_task_info(\"uEjr24kBHUgZTTdfNskV\")\n",
+    "\n",
+    "print(task_info)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "97ed5665",
+   "metadata": {},
+   "source": [
+    "## Step 4: Get Model\n",
+    "\n",
+    "With using the model id, we can also pull information about the model metadata from the opensearch cluster."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "id": "661c3f46",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "{'name': 'huggingface/sentence-transformers/all-MiniLM-L12-v2', 'algorithm': 'TEXT_EMBEDDING', 'model_version': '1.0.1', 'model_format': 'TORCH_SCRIPT', 'model_state': 'DEPLOYED', 'model_content_size_in_bytes': 134568911, 'model_content_hash_value': 'f8012a4e6b5da1f556221a12160d080157039f077ab85a5f6b467a47247aad49', 'model_config': {'model_type': 'bert', 'embedding_dimension': 384, 'framework_type': 'SENTENCE_TRANSFORMERS', 'all_config': '{\"_name_or_path\":\"microsoft/MiniLM-L12-H384-uncased\",\"attention_probs_dropout_prob\":0.1,\"gradient_checkpointing\":false,\"hidden_act\":\"gelu\",\"hidden_dropout_prob\":0.1,\"hidden_size\":384,\"initializer_range\":0.02,\"intermediate_size\":1536,\"layer_norm_eps\":1e-12,\"max_position_embeddings\":512,\"model_type\":\"bert\",\"num_attention_heads\":12,\"num_hidden_layers\":12,\"pad_token_id\":0,\"position_embedding_type\":\"absolute\",\"transformers_version\":\"4.8.2\",\"type_vocab_size\":2,\"use_cache\":true,\"vocab_size\":30522}'}, 'created_time': 1691611630758, 'last_updated_time': 1691611774664, 'last_registered_time': 1691611634683, 'last_deployed_time': 1691611774664, 'total_chunks': 14, 'planning_worker_node_count': 1, 'current_worker_node_count': 1, 'planning_worker_nodes': ['3w2aOHUBRmmwmVfoGgW8Jw'], 'deploy_to_all_nodes': True}\n"
+     ]
+    }
+   ],
+   "source": [
+    "model_info = ml_client.get_model_info(\"t0jp24kBHUgZTTdfDMmm\")\n",
+    "\n",
+    "print(model_info)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3b22c708",
+   "metadata": {},
+   "source": [
+    "## Step 5: Generate Sentence Embedding\n",
+    "\n",
+    "Now using the loaded model in memory, we can generate embedding for sentences. We can provide a list of sentences to get a list of embedding for the sentences. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "id": "8cc5a796",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "{'inference_results': [{'output': [{'name': 'sentence_embedding', 'data_type': 'FLOAT32', 'shape': [384], 'data': [0.07004598, 0.094030194, 0.0294691, 0.0063353553, -0.037177887, 0.003469634, 0.06973778, -0.041374724, -0.052779537, -0.019993527, 0.049499035, 0.044301376, 0.050956327, -0.091860786, -0.039252494, -0.028518932, 0.018059155, -0.09713085, -0.034800865, 0.04408874, 0.025124485, -0.06829839, 0.02107054, 0.073358156, -0.016343018, 0.016885223, 0.0073822327, -0.069800906, 0.01917283, -0.127567, -0.002833644, 0.07662087, 0.010953967, 0.040559784, 0.047134362, -0.02965514, -0.025424507, -0.023706196, 0.015665805, -0.0002845036, -0.02252695, -0.073676944, 0.05547299, 0.018682828, 0.03940338, -0.024852037, 0.04160006, -0.0012200836, -0.012104877, -0.05119714, -0.07446669, -0.055452716, 0.007486106, -0.019089257, -0.030097323, -0.026060726, -0.052988816, 0.06712463, 0.025931384, -0.02644008, -0.0065706596, 0.05588654, -0.05347465, 0.007984704, 0.08091787, -0.036647186, -0.031903736, -0.07397383, -0.0065454575, 0.034760114, -0.009686786, 0.016051935, -0.04783923, 0.0035186426, -9.652851e-05, -0.037315175, 0.0050969664, 0.0046331156, 0.048319556, -0.037194334, -0.018304864, -0.06406543, 0.007127524, 0.0036731854, -0.037867695, 0.052579854, 0.02275424, -0.009397553, -0.078870915, -0.04558915, 0.02658195, -0.07401964, 0.0022031788, 0.027502479, -0.046129823, 0.028674513, 0.028122796, -0.06055296, 0.046777423, 0.198897, 0.02673153, -0.007961458, -0.06408687, 0.03999538, -0.06574333, -0.010389742, 0.031175155, 0.0015405632, -0.040537335, -0.0026587504, 0.020172479, 0.08372859, 0.0058846273, 0.032710858, -0.0015732804, -0.09610316, 0.0023569933, 0.05984071, -0.16500352, 0.03679231, 0.122917764, -0.0018065565, 0.043636024, -0.041891094, 0.009408743, -0.08278275, 0.12746939, 0.016939186, 0.012635989, -0.14616504, 0.051131263, 0.0033628803, -0.022748744, 0.022569718, -0.037459765, 0.018744126, -0.0062177675, 0.08469717, -0.006795277, -0.05414359, -0.0573888, 0.047126096, 0.01614229, 0.047543816, -0.062171623, -0.012241133, -0.08141003, -0.011919791, 0.016868353, 0.013309039, 0.065954946, 0.027840674, 0.013731638, -0.057872113, -0.026792012, 0.018663734, -0.05059098, -0.020403482, 0.047714923, -0.01606342, -0.10401474, 0.13376766, -0.03058641, 0.001033993, 0.070359856, -0.013292278, -0.015457728, 0.04892655, -0.011410854, -0.052058097, 0.18224768, 0.0035982134, 0.022464214, -0.0030590647, -0.019338032, 0.00026649763, 0.02233567, 0.07469185, 0.02382241, 0.010466962, 0.03009085, -0.006465027, -0.051522672, 0.0199809, -0.03548726, 0.0103704315, -0.08818128, -0.02829264, 0.074272595, 0.084029905, 0.035817306, -0.018850243, 0.031453986, 0.068550915, 0.014118737, -0.070071295, 0.008944256, 0.018165134, -0.07784688, -0.070696145, -0.012862558, -0.015138121, -0.0334761, -0.0068311137, -0.002638576, 0.03638613, 0.03143706, -0.08959043, 0.053561207, -0.08690697, -0.014789994, 0.055373095, -0.11275849, -0.038676355, 0.01777756, -0.062403727, 0.0830996, -0.058959745, 0.021466918, -0.005259635, -0.039675698, -0.07005095, 0.053564843, 1.1060878e-32, 0.0013608016, 0.106175035, -0.059511874, -0.0037960887, 0.013185141, -0.046274804, 0.10418073, -0.0012341124, -0.013150821, 0.018092388, 0.005424653, 0.014040968, 0.03679144, 0.016286962, -0.09607988, 0.015155191, 0.023281407, 0.08310539, 0.0006558546, 0.0002872544, 0.049073823, 0.050753288, -0.0048564966, 0.08584042, -0.049346182, 0.010288551, 0.087672256, -0.06680062, -0.027301554, -0.060317975, 0.08574496, 0.0017309932, 0.0041642035, 0.13996643, -0.0064810454, -0.06346753, 0.10613796, -0.06602093, 0.007606491, 0.034102246, 0.015871532, 0.034030363, -0.0662087, 0.061993726, -0.016627997, -0.001729985, 0.025229797, -0.003180745, 0.0490112, 0.00089509884, -0.039893012, 0.0016668896, -0.012777804, 0.015382689, 0.016362777, -0.02404702, -0.02143441, -0.0911707, -0.053739283, -0.018560594, 0.023284977, 0.0031981992, -0.0031510598, 0.10734427, 0.06998925, -0.0027732535, -0.053055596, 0.02354699, 0.025985928, -0.035036538, -0.058912467, -0.02920474, 0.008312963, -0.056485146, -0.014061096, 0.04225053, -0.08007323, -0.009161725, -0.018469293, -0.045568734, -0.015968522, -0.014121509, 0.0036195314, 0.027108373, 0.035869084, -0.017504305, 0.108702846, -0.008362452, 0.014823476, 0.04874034, 0.010967371, 0.018752342, -0.046599716, -0.058064498, -0.029174827, 4.6263152e-33, -0.030307822, -0.06679234, 0.0005264218, 0.045648467, 0.10910713, -0.016406672, -0.0065098666, -0.1690238, 0.011055945, 0.036133047, 0.050960947, 0.028546333, -0.07644701, 0.082524374, -0.041281033, 0.0342127, -0.0013897946, 0.0062635383, -0.045143634, -0.017067816, 0.079229176, -0.022634152, -0.068493344, -0.007873755, 0.030855201, 0.03661335, 0.0154381255, 0.041089326, -0.05730516, 0.063175276, 0.08143365, 0.07131981, -0.03726474, -0.058889214, -0.049804606, -0.03410345, 0.066488594, -0.014449714, 0.022788277, 0.035716787, -0.035706382, 0.046074968, 0.005366466, 0.0248586, 0.025428172, -0.010590827, -0.0405528, -0.065138645, -0.00039351193, -0.05637292, -0.0514825, 0.0112641435, 0.066459976, 0.026653022, 0.07176415, 0.0355379, 0.032872733, -0.0017282534, -0.07933759, 0.04971213, 0.066491455, 0.06070366, -0.012733777, -0.006001069]}]}, {'output': [{'name': 'sentence_embedding', 'data_type': 'FLOAT32', 'shape': [384], 'data': [0.07083512, 0.09897267, 0.02352888, 0.015548294, -0.034146227, 0.0247732, 0.06027314, -0.028832998, -0.09044973, -0.029630564, 0.044647824, 0.020695595, 0.045139927, -0.105178796, -0.035747953, -0.022011546, 0.022424795, -0.06875172, -0.04150383, 0.046235885, 0.02588881, -0.058203597, 0.03171956, 0.06430214, -0.030310709, 0.027002905, -0.0028196378, -0.044340268, 0.032432683, -0.11670582, 0.014379533, 0.0643216, -0.011770836, 0.032793343, 0.04387401, -0.038692914, -0.013582456, -0.026226604, 0.007600631, -0.027217109, -0.03441963, -0.08012474, 0.054726355, 0.0074604494, 0.04748688, -0.025225094, 0.03748238, 0.0020973468, -0.0042126784, -0.05753656, -0.08447185, -0.043337557, 0.014264312, -0.023134159, -0.02947989, -0.033630386, -0.05907903, 0.06964187, 0.03533768, -0.022372045, -0.021929925, 0.06226919, -0.030993978, 0.007610613, 0.07694968, -0.017912386, -0.044359725, -0.05673219, -0.01552571, 0.032636717, -0.009579155, 0.018426916, -0.05479158, 0.008909622, 0.006345299, -0.031336434, 0.0058207866, -0.008221157, 0.058385894, -0.047120895, -0.005223671, -0.06515576, 0.0010108105, 0.020413512, -0.041749343, 0.044107605, 0.008662969, -0.011051096, -0.08871866, -0.045078132, 0.036184326, -0.07195323, 0.009203147, 0.023508985, -0.028275412, 0.028231055, 0.0039115297, -0.07011834, 0.05857326, 0.20727783, 0.04835618, -0.0018830771, -0.06611541, 0.022906005, -0.061623234, -0.02123788, 0.018174635, -0.0050362577, -0.023906214, -0.0023879737, 0.035721574, 0.10048731, -0.007958884, 0.044000242, 0.010386637, -0.09361921, 0.011654652, 0.06738685, -0.17360488, 0.032549746, 0.13699506, -0.009299514, 0.048183367, -0.05021916, 0.005542932, -0.10294828, 0.10766478, 0.015173303, 0.01355476, -0.1350117, 0.045765016, 0.021902222, -0.033359498, 0.028230252, -0.04085572, 0.007747412, -0.036401898, 0.092795655, -0.00096510054, -0.059694264, -0.03562055, 0.037294004, 0.0015283314, 0.034953013, -0.048806172, -0.0059092273, -0.060103502, -0.00898931, 0.022295611, 0.022184547, 0.049791194, 0.049196154, 0.037901234, -0.053590365, -0.007701697, 0.0031885458, -0.056628704, -0.027927952, 0.060124114, -0.025649505, -0.09657915, 0.12991673, -0.03208177, -0.006092552, 0.06273655, -0.025575202, -0.0069704982, 0.0503692, -0.025092859, -0.019693008, 0.17965682, 0.0066510485, 0.024963824, -0.018071467, -0.016473666, -0.008775544, 0.049499284, 0.07836955, 0.032525778, -0.007377622, 0.03200582, -0.011032107, -0.028064458, 0.017632844, -0.026994104, 0.008085599, -0.07062725, -0.03446164, 0.050107572, 0.09331023, 0.049584396, -0.021610705, 0.027137293, 0.07193105, -0.013025723, -0.07407565, 0.02058441, 0.011435531, -0.10216389, -0.066884704, 0.019413384, -0.0076031317, -0.036991768, -0.0303734, 0.0014173611, 0.033982154, 0.028674075, -0.080678694, 0.0375031, -0.08438446, -0.0010728774, 0.05789914, -0.113598056, -0.018308552, 0.011551412, -0.07234886, 0.09252421, -0.04969506, 0.014780675, -0.007567542, -0.044519085, -0.06133406, 0.05895338, 8.414509e-33, 0.009771958, 0.12160779, -0.039359365, -0.010013683, 0.00898449, -0.04882902, 0.092219874, 0.0024215167, -0.008333214, 0.03851627, 0.012913563, 0.03204204, 0.041664835, 0.0009534093, -0.10857273, 0.024132818, 0.021791773, 0.101970024, 0.009454601, 0.026551446, 0.05246786, 0.06066872, -0.01103198, 0.08555519, -0.048329007, 0.015530085, 0.08154496, -0.0731774, -0.024714865, -0.05487307, 0.07664423, 0.009958633, -0.012626225, 0.12942669, -0.02095135, -0.071839556, 0.112829536, -0.05635947, -0.009640948, 0.04163078, 0.037358176, 0.029693598, -0.0628964, 0.053272255, -0.012749352, 0.009228823, 0.01942351, 0.004775929, 0.036169015, -0.012142286, -0.01922596, -4.9331225e-05, -0.026529552, 0.012205288, 0.017824046, -0.015235645, -0.0181183, -0.08875225, -0.03372447, -0.020540629, -0.005065464, -0.0013711171, 0.00086961745, 0.11509084, 0.06752553, 0.0014781557, -0.05162722, 0.024478994, 0.027465401, -0.04733123, -0.07152838, -0.033279166, -0.007459171, -0.05876381, -0.040509865, 0.023988906, -0.08772608, -0.003155819, -0.020018948, -0.041812915, -0.0050884616, -0.013900808, 0.02811133, 0.021810783, 0.013438155, -0.007385124, 0.10051118, -0.014426816, -0.004692878, 0.03919732, 0.0023597397, 0.015907336, -0.035865597, -0.071099125, -0.013097632, 7.3765136e-33, -0.022041548, -0.06963561, -0.022240805, 0.037175175, 0.09121253, -0.009112657, -0.014528283, -0.1540716, 0.005560708, 0.024977792, 0.052556057, 0.014630056, -0.088896446, 0.09537804, -0.039953273, 0.042290684, -0.024341425, 0.0096786395, -0.04815927, -0.03606919, 0.05914406, -0.009443069, -0.06272632, 0.0018664851, 0.004131947, 0.039284766, 0.014626883, 0.025103891, -0.053130243, 0.05443761, 0.07312244, 0.059003882, -0.03820951, -0.08526913, -0.06061701, -0.04227627, 0.06129878, -0.016126666, 0.0364838, 0.026359634, -0.020908944, 0.048757017, -0.004610902, 0.035508078, 0.02846824, -0.009864912, -0.034235265, -0.07203998, -0.0005532816, -0.054544747, -0.042482726, 0.014105883, 0.081946984, 0.040557213, 0.06266559, 0.04084731, 0.02860638, 0.025837963, -0.077221215, 0.039314423, 0.049470052, 0.05854972, -0.032445546, -0.024784891]}]}]}\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Now using this model we can generate sentence embedding.\n",
+    "\n",
+    "input_sentences = [\"Test sentence1\", \"Test sentence2\"]\n",
+    "\n",
+    "embedding_output = ml_client.generate_embedding(\"t0jp24kBHUgZTTdfDMmm\", input_sentences)\n",
+    "\n",
+    "print(embedding_output)\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4a27702e",
+   "metadata": {},
+   "source": [
+    "## Step 6: Unload Model\n",
+    "\n",
+    "After generating the embedding if we want we can unload the model from memory. `unload_model` method takes two input. \n",
+    "\n",
+    "1. model_id --> Which model we want to unload\n",
+    "2. node_ids --> list of the nodes from where we want to unload the model.\n",
+    "\n",
+    "If we don't provide `node_ids` then method will unload model from all the nodes available like the following example."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "id": "9636c6bf",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "{'3w2aOHUBRmmwmVfoGgW8Jw': {'stats': {'t0jp24kBHUgZTTdfDMmm': 'undeployed'}}}\n"
+     ]
+    }
+   ],
+   "source": [
+    "\n",
+    "undeploy_model_response = ml_client.undeploy_model(\"t0jp24kBHUgZTTdfDMmm\")\n",
+    "\n",
+    "print(undeploy_model_response)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ad3173f3",
+   "metadata": {},
+   "source": [
+    "## Step 7: Delete Model\n",
+    "\n",
+    "We can also delete the model from the index using the model id."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "id": "001165fb",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "{'_index': '.plugins-ml-model', '_id': 't0jp24kBHUgZTTdfDMmm', '_version': 6, 'result': 'deleted', '_shards': {'total': 2, 'successful': 1, 'failed': 0}, '_seq_no': 11203, '_primary_term': 33}\n"
+     ]
+    }
+   ],
+   "source": [
+    "\n",
+    "delete_model_response = ml_client.delete_model(\"t0jp24kBHUgZTTdfDMmm\")\n",
+    "\n",
+    "print(delete_model_response)"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.8.17"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

@@ -1,0 +1,333 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MLCommons Support &mdash; Opensearch-py-ml 1.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=fc837d61"></script>
+      <script src="../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Upload Model" href="api/ml_commons_upload_api.html" />
+    <link rel="prev" title="csv_to_opensearch" href="api/csv_to_opensearch.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Opensearch-py-ml
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="dataframe.html">DataFrame</a></li>
+<li class="toctree-l2"><a class="reference internal" href="series.html">Series</a></li>
+<li class="toctree-l2"><a class="reference internal" href="general_utility_functions.html">General Utility Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="io.html">Input/Output</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">MLCommons Support</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#upload-model">Upload Model</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/ml_commons_upload_api.html">Upload Model</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#register-model">Register Model</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/ml_commons_register_api.html">Register Model</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#upload-pretrained-model">Upload Pretrained Model</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/ml_commons_upload_pretrained_api.html">Upload Pretrained Model</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#register-pretrained-model">Register Pretrained Model</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/ml_commons_register_pretrained_api.html">Register Pretrained Model</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#load-model">Load Model</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/ml_commons_load_api.html">Load Model</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#deploy-model">Deploy Model</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/ml_commons_deploy_api.html">Deploy Model</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#get-task-info">Get Task Info</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/ml_commons_get_task_info_api.html">Get Task Info</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#get-model-info">Get Model Info</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/ml_commons_get_model_info_api.html">Get Model Info</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#generate-embedding">Generate Embedding</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/ml_commons_generate_embedding_api.html">Generate Embedding</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#unload-model">Unload Model</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/ml_commons_unload_model_api.html">Unload Model</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#undeploy-model">Undeploy Model</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/ml_commons_undeploy_model_api.html">Undeploy Model</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#delete-model">Delete Model</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/ml_commons_delete_model_api.html">Delete Model</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#delete-task">Delete Task</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/ml_commons_delete_task_api.html">Delete Task</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#execute">Execute</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/ml_commons_execute_api.html">Execute</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sentencetransformer.html">Sentence Transformer</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pre_trained_models.html">Pre-trained models</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Opensearch-py-ml</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">API Reference</a></li>
+      <li class="breadcrumb-item active">MLCommons Support</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/reference/mlcommons.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="mlcommons-support">
+<span id="api-ml-commons-upload-api"></span><h1>MLCommons Support<a class="headerlink" href="#mlcommons-support" title="Link to this heading"></a></h1>
+<section id="upload-model">
+<h2>Upload Model<a class="headerlink" href="#upload-model" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/ml_commons_upload_api.html">Upload Model</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/ml_commons_upload_api.html#opensearch_py_ml.ml_commons.MLCommonClient.upload_model"><code class="docutils literal notranslate"><span class="pre">upload_model()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="register-model">
+<h2>Register Model<a class="headerlink" href="#register-model" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/ml_commons_register_api.html">Register Model</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/ml_commons_register_api.html#opensearch_py_ml.ml_commons.MLCommonClient.register_model"><code class="docutils literal notranslate"><span class="pre">register_model()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="upload-pretrained-model">
+<h2>Upload Pretrained Model<a class="headerlink" href="#upload-pretrained-model" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/ml_commons_upload_pretrained_api.html">Upload Pretrained Model</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/ml_commons_upload_pretrained_api.html#opensearch_py_ml.ml_commons.MLCommonClient.upload_pretrained_model"><code class="docutils literal notranslate"><span class="pre">upload_pretrained_model()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="register-pretrained-model">
+<h2>Register Pretrained Model<a class="headerlink" href="#register-pretrained-model" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/ml_commons_register_pretrained_api.html">Register Pretrained Model</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/ml_commons_register_pretrained_api.html#opensearch_py_ml.ml_commons.MLCommonClient.register_pretrained_model"><code class="docutils literal notranslate"><span class="pre">register_pretrained_model()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="load-model">
+<h2>Load Model<a class="headerlink" href="#load-model" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/ml_commons_load_api.html">Load Model</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/ml_commons_load_api.html#opensearch_py_ml.ml_commons.MLCommonClient.load_model"><code class="docutils literal notranslate"><span class="pre">load_model()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="deploy-model">
+<h2>Deploy Model<a class="headerlink" href="#deploy-model" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/ml_commons_deploy_api.html">Deploy Model</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/ml_commons_deploy_api.html#opensearch_py_ml.ml_commons.MLCommonClient.deploy_model"><code class="docutils literal notranslate"><span class="pre">deploy_model()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="get-task-info">
+<h2>Get Task Info<a class="headerlink" href="#get-task-info" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/ml_commons_get_task_info_api.html">Get Task Info</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/ml_commons_get_task_info_api.html#opensearch_py_ml.ml_commons.MLCommonClient.get_task_info"><code class="docutils literal notranslate"><span class="pre">get_task_info()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="get-model-info">
+<h2>Get Model Info<a class="headerlink" href="#get-model-info" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/ml_commons_get_model_info_api.html">Get Model Info</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/ml_commons_get_model_info_api.html#opensearch_py_ml.ml_commons.MLCommonClient.get_model_info"><code class="docutils literal notranslate"><span class="pre">get_model_info()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="generate-embedding">
+<h2>Generate Embedding<a class="headerlink" href="#generate-embedding" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/ml_commons_generate_embedding_api.html">Generate Embedding</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/ml_commons_generate_embedding_api.html#opensearch_py_ml.ml_commons.MLCommonClient.generate_embedding"><code class="docutils literal notranslate"><span class="pre">generate_embedding()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="unload-model">
+<h2>Unload Model<a class="headerlink" href="#unload-model" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/ml_commons_unload_model_api.html">Unload Model</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/ml_commons_unload_model_api.html#opensearch_py_ml.ml_commons.MLCommonClient.unload_model"><code class="docutils literal notranslate"><span class="pre">unload_model()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="undeploy-model">
+<h2>Undeploy Model<a class="headerlink" href="#undeploy-model" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/ml_commons_undeploy_model_api.html">Undeploy Model</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/ml_commons_undeploy_model_api.html#opensearch_py_ml.ml_commons.MLCommonClient.undeploy_model"><code class="docutils literal notranslate"><span class="pre">undeploy_model()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="delete-model">
+<h2>Delete Model<a class="headerlink" href="#delete-model" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/ml_commons_delete_model_api.html">Delete Model</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/ml_commons_delete_model_api.html#opensearch_py_ml.ml_commons.MLCommonClient.delete_model"><code class="docutils literal notranslate"><span class="pre">delete_model()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="delete-task">
+<h2>Delete Task<a class="headerlink" href="#delete-task" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/ml_commons_delete_task_api.html">Delete Task</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/ml_commons_delete_task_api.html#opensearch_py_ml.ml_commons.MLCommonClient.delete_task"><code class="docutils literal notranslate"><span class="pre">delete_task()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="execute">
+<h2>Execute<a class="headerlink" href="#execute" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/ml_commons_execute_api.html">Execute</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/ml_commons_execute_api.html#opensearch_py_ml.ml_commons.MLCommonClient.execute"><code class="docutils literal notranslate"><span class="pre">execute()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="api/csv_to_opensearch.html" class="btn btn-neutral float-left" title="csv_to_opensearch" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="api/ml_commons_upload_api.html" class="btn btn-neutral float-right" title="Upload Model" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Opensearch.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
