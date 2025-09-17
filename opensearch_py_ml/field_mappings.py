@@ -470,7 +470,6 @@ class FieldMappings:
         )
 
         # return just source fields (as these are the only ones we display)
-        print(capability_matrix_df[capability_matrix_df.is_source].sort_index())
         return capability_matrix_df[capability_matrix_df.is_source].sort_index()
 
     @classmethod
