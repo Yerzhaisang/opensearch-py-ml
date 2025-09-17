@@ -25,7 +25,7 @@
 
 import sys
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, List, Optional, TextIO, Tuple, Union
+from typing import TYPE_CHECKING, Dict, List, Optional, TextIO, Tuple, Union
 
 import pandas as pd  # type: ignore
 
@@ -72,6 +72,7 @@ class NDFrame(ABC):
         columns: Optional[List[str]] = None,
         os_index_field: Optional[str] = None,
         _query_compiler: Optional[QueryCompiler] = None,
+        dtype: Dict[str, str] = None,
     ) -> None:
         """
         pandas.DataFrame/Series like API that proxies into OpenSearch index(os).
@@ -87,6 +88,7 @@ class NDFrame(ABC):
                 index_pattern=os_index_pattern,
                 display_names=columns,
                 index_field=os_index_field,
+                dtype=dtype,
             )
         self._query_compiler = _query_compiler
 

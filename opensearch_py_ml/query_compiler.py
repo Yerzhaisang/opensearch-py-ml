@@ -91,6 +91,7 @@ class QueryCompiler:
         display_names=None,
         index_field=None,
         to_copy=None,
+        dtype=None
     ) -> None:
         # Implement copy as we don't deep copy the client
         if to_copy is not None:
@@ -108,6 +109,7 @@ class QueryCompiler:
                 client=self._client,
                 index_pattern=self._index_pattern,
                 display_names=display_names,
+                dtype = dtype,
             )
             self._index = Index(self, index_field)
             self._operations = Operations()

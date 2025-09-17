@@ -27,7 +27,7 @@ import re
 import sys
 import warnings
 from io import StringIO
-from typing import TYPE_CHECKING, Any, Iterable, List, Optional, Sequence, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
 import pandas as pd  # type: ignore
@@ -137,6 +137,7 @@ class DataFrame(NDFrame):
         columns: Optional[List[str]] = None,
         os_index_field: Optional[str] = None,
         _query_compiler: Optional["QueryCompiler"] = None,
+        dtype: Dict[str, str] = None,
     ) -> None:
         """
         There are effectively 2 constructors:
@@ -158,6 +159,7 @@ class DataFrame(NDFrame):
             columns=columns,
             os_index_field=os_index_field,
             _query_compiler=_query_compiler,
+            dtype=dtype,
         )
 
     @property

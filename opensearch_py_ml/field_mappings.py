@@ -194,6 +194,7 @@ class FieldMappings:
         client: "OpenSearch",
         index_pattern: str,
         display_names: Optional[List[str]] = None,
+        dtype: Dict[str, str] = None,
     ):
         """
         Parameters
@@ -229,7 +230,7 @@ class FieldMappings:
 
         # Populate capability matrix of fields
         self._mappings_capabilities = FieldMappings._create_capability_matrix(
-            all_fields, source_fields, all_fields_caps
+            all_fields, source_fields, all_fields_caps, dtype
         )
 
         if display_names is not None:
@@ -359,7 +360,7 @@ class FieldMappings:
         return fields
 
     @staticmethod
-    def _create_capability_matrix(all_fields, source_fields, all_fields_caps):
+    def _create_capability_matrix(all_fields, source_fields, all_fields_caps, dtype=None):
         """
         {
           "fields": {
@@ -397,9 +398,13 @@ class FieldMappings:
                 for kk, vv in field_caps.items():
                     _source = field in source_fields
                     os_field_name = field
-                    os_dtype = vv["type"]
                     os_date_format = all_fields[field][1]
-                    pd_dtype = FieldMappings._os_dtype_to_pd_dtype(vv["type"])
+                    if dtype is not None and field in dtype:
+                        os_dtype = dtype.get(field)
+                        pd_dtype = FieldMappings._os_dtype_to_pd_dtype(dtype.get(field))
+                    else:
+                        os_dtype = vv["type"]
+                        pd_dtype = FieldMappings._os_dtype_to_pd_dtype(vv["type"])
                     is_searchable = vv["searchable"]
                     is_aggregatable = vv["aggregatable"]
                     scripted = False
@@ -463,6 +468,7 @@ class FieldMappings:
         )
 
         # return just source fields (as these are the only ones we display)
+        print(capability_matrix_df[capability_matrix_df.is_source].sort_index())
         return capability_matrix_df[capability_matrix_df.is_source].sort_index()
 
     @classmethod
