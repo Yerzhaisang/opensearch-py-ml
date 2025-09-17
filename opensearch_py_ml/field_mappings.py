@@ -360,7 +360,9 @@ class FieldMappings:
         return fields
 
     @staticmethod
-    def _create_capability_matrix(all_fields, source_fields, all_fields_caps, dtype=None):
+    def _create_capability_matrix(
+        all_fields, source_fields, all_fields_caps, dtype=None
+    ):
         """
         {
           "fields": {
